@@ -1,0 +1,93 @@
+# Tududi MCP
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
+
+A Model Context Protocol (MCP) server that integrates [Tududi](https://tududi.com/) task management with AI-powered development tools.
+
+## Overview
+
+Tududi MCP enables AI agents and developers to interact with Tududi tasks, projects, and areas directly from their IDE. Manage your tasks seamlessly while coding, powered by the Model Context Protocol standard.
+
+### Features
+
+- **Task Management**: Create, read, update, and delete tasks
+- **Project Organization**: Manage projects and organize work
+- **Area Management**: Organize tasks by areas
+- **Search & Filter**: Query tasks with flexible filtering
+- **AI-Ready**: Works with AI agents like GitHub Copilot and Augment Code Agent
+
+## Installation
+
+```bash
+git clone https://github.com/jerrytunin/tududi-mcp.git
+cd tududi-mcp
+npm install
+npm run build
+```
+
+## Configuration
+
+Create a `.env` file:
+
+```env
+TUDUDI_API_URL=http://localhost:3000
+TUDUDI_API_KEY=your-api-key-here
+LOG_LEVEL=info
+```
+
+### Visual Studio Configuration
+
+Add to your `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "tududi": {
+      "command": "node",
+      "args": ["path/to/tududi-mcp/dist/server.js"],
+      "env": {
+        "TUDUDI_API_URL": "http://localhost:3000",
+        "TUDUDI_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+## Development
+
+```bash
+npm install
+npm run build
+npm run dev
+npm test
+```
+
+## Available Tools
+
+- `tududi_list_tasks` - List all tasks
+- `tududi_create_task` - Create a new task
+- `tududi_update_task` - Update an existing task
+- `tududi_delete_task` - Delete a task
+- `tududi_complete_task` - Mark a task as complete
+- `tududi_list_projects` - List all projects
+- `tududi_create_project` - Create a new project
+- `tududi_list_areas` - List all areas
+- `tududi_search_tasks` - Search tasks with filters
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Links
+
+- [Tududi](https://tududi.com/)
+- [Model Context Protocol](https://modelcontextprotocol.io/)
+- [GitHub Repository](https://github.com/jerrytunin/tududi-mcp)
+
