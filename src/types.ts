@@ -79,4 +79,3 @@ export interface SearchTasksParams {
   priority?: 'low' | 'medium' | 'high';
   tags?: string[];
 }
-

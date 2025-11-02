@@ -18,7 +18,7 @@ export class TududuClient {
     this.client = axios.create({
       baseURL: apiUrl,
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
     });
@@ -100,4 +100,3 @@ export class TududuClient {
     return response.data;
   }
 }
-

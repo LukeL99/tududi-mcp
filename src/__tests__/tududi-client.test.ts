@@ -28,4 +28,3 @@ describe('TududuClient', () => {
     expect(typeof client.searchTasks).toBe('function');
   });
 });
-

@@ -26,4 +26,3 @@ export function getConfig(): Config {
     logLevel: process.env.LOG_LEVEL || 'info',
   };
 }
-
