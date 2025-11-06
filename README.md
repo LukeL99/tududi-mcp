@@ -1,6 +1,7 @@
 # Tududi MCP
 
 [![CI](https://github.com/jerrytunin/tududi-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/jerrytunin/tududi-mcp/actions/workflows/ci.yml)
+[![Docker](https://github.com/jerrytunin/tududi-mcp/actions/workflows/docker.yml/badge.svg)](https://github.com/jerrytunin/tududi-mcp/actions/workflows/docker.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
@@ -21,10 +22,51 @@ Tududi MCP enables AI agents and developers to interact with Tududi tasks, proje
 
 ## Installation
 
+### Option 1: Docker (Recommended)
+
+#### Using Pre-built Image from GitHub Container Registry
+
 ```bash
+# Pull the latest image
+docker pull ghcr.io/jerrytunin/tududi-mcp:main
+
+# Run the container
+docker run -it \
+  -e TUDUDI_API_URL=http://localhost:3000 \
+  -e TUDUDI_API_KEY=your-api-key \
+  ghcr.io/jerrytunin/tududi-mcp:main
+```
+
+#### Building from Source
+
+```bash
+# Clone the repository
 git clone https://github.com/jerrytunin/tududi-mcp.git
 cd tududi-mcp
+
+# Copy environment file
+cp .env.example .env
+# Edit .env with your Tududi API URL and key
+
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Or build Docker image manually
+docker build -t tududi-mcp .
+docker run -it --env-file .env tududi-mcp
+```
+
+### Option 2: Local Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/jerrytunin/tududi-mcp.git
+cd tududi-mcp
+
+# Install dependencies
 npm install
+
+# Build the project
 npm run build
 ```
 
@@ -55,6 +97,41 @@ Add to your `.mcp.json`:
     }
   }
 }
+```
+
+## Docker Usage
+
+### Using Docker Compose
+
+```bash
+# Start the server
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the server
+docker-compose down
+```
+
+### Using Docker Directly
+
+```bash
+# Build the image
+docker build -t tududi-mcp .
+
+# Run the container
+docker run -it \
+  -e TUDUDI_API_URL=http://localhost:3000 \
+  -e TUDUDI_API_KEY=your-api-key \
+  -e LOG_LEVEL=info \
+  tududi-mcp
+
+# Run in background
+docker run -d --name tududi-mcp \
+  -e TUDUDI_API_URL=http://localhost:3000 \
+  -e TUDUDI_API_KEY=your-api-key \
+  tududi-mcp
 ```
 
 ## Development
