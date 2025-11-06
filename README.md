@@ -24,21 +24,6 @@ Tududi MCP enables AI agents and developers to interact with Tududi tasks, proje
 
 ### Option 1: Docker (Recommended)
 
-#### Using Pre-built Image from GitHub Container Registry
-
-```bash
-# Pull the latest image
-docker pull ghcr.io/jerrytunin/tududi-mcp:main
-
-# Run the container
-docker run -it \
-  -e TUDUDI_API_URL=http://localhost:3000 \
-  -e TUDUDI_API_KEY=your-api-key \
-  ghcr.io/jerrytunin/tududi-mcp:main
-```
-
-#### Building from Source
-
 ```bash
 # Clone the repository
 git clone https://github.com/jerrytunin/tududi-mcp.git
