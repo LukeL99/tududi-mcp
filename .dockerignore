@@ -43,6 +43,5 @@ __tests__/
 # Misc
 .prettierrc.json
 .eslintrc.json
-tsconfig.json
 jest.config.js
 
