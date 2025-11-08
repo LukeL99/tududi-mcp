@@ -6,35 +6,36 @@ on:
       - 'v*'
 
 jobs:
-  release:
-    name: Create Release
+  validate:
+    name: Validate Release
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Run tests
       run: npm test
       env:
         LOG_LEVEL: silent
-    
+
     - name: Build
       run: npm run build
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        generate_release_notes: true
-        draft: false
-        prerelease: false
+    - name: Validate build artifacts
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "Error: dist directory not found"
+          exit 1
+        fi
+        echo "✅ Build artifacts validated successfully"
 
