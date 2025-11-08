@@ -15,12 +15,7 @@ export class TududuClient {
   private client: AxiosInstance;
   private sessionCookie?: string;
 
-  constructor(
-    apiUrl: string,
-    apiKey?: string,
-    email?: string,
-    password?: string
-  ) {
+  constructor(apiUrl: string, apiKey?: string, email?: string, password?: string) {
     this.client = axios.create({
       baseURL: apiUrl,
       headers: {
@@ -61,9 +56,7 @@ export class TududuClient {
       // Extract session cookie from response
       const setCookie = response.headers['set-cookie'];
       if (setCookie) {
-        this.sessionCookie = Array.isArray(setCookie)
-          ? setCookie.join('; ')
-          : setCookie;
+        this.sessionCookie = Array.isArray(setCookie) ? setCookie.join('; ') : setCookie;
         // Set cookie for future requests
         this.client.defaults.headers.common['Cookie'] = this.sessionCookie;
       }
