@@ -57,6 +57,10 @@ npm run build
 
 ## Configuration
 
+The MCP server supports two authentication methods:
+
+### Option 1: API Key Authentication (Newer Tududi Versions)
+
 Create a `.env` file:
 
 ```env
@@ -64,6 +68,19 @@ TUDUDI_API_URL=http://localhost:3000
 TUDUDI_API_KEY=your-api-key-here
 LOG_LEVEL=info
 ```
+
+### Option 2: Email/Password Authentication (Older Tududi Versions)
+
+If your Tududi instance doesn't support API tokens yet, use email/password authentication:
+
+```env
+TUDUDI_API_URL=http://localhost:3000
+TUDUDI_EMAIL=your-email@example.com
+TUDUDI_PASSWORD=your-password
+LOG_LEVEL=info
+```
+
+The MCP server will automatically detect which authentication method to use based on the environment variables provided.
 
 ### Visual Studio Configuration
 

@@ -13,15 +13,34 @@ import {
 
 export class TududuClient {
   private client: AxiosInstance;
+  private sessionCookie?: string;
 
-  constructor(apiUrl: string, apiKey: string) {
+  constructor(
+    apiUrl: string,
+    apiKey?: string,
+    email?: string,
+    password?: string
+  ) {
     this.client = axios.create({
       baseURL: apiUrl,
       headers: {
-        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // Enable cookies for session auth
     });
+
+    // Add Authorization header if API key is provided
+    if (apiKey) {
+      this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+    }
+
+    // If email/password provided, login and store session
+    if (email && password && !apiKey) {
+      this.login(email, password).catch((error) => {
+        logger.error({ error: error.message }, 'Failed to login to Tududi');
+        throw error;
+      });
+    }
 
     this.client.interceptors.response.use(
       (response) => response,
@@ -30,6 +49,30 @@ export class TududuClient {
         throw error;
       }
     );
+  }
+
+  private async login(email: string, password: string): Promise<void> {
+    try {
+      const response = await this.client.post('/api/login', {
+        email,
+        password,
+      });
+
+      // Extract session cookie from response
+      const setCookie = response.headers['set-cookie'];
+      if (setCookie) {
+        this.sessionCookie = Array.isArray(setCookie)
+          ? setCookie.join('; ')
+          : setCookie;
+        // Set cookie for future requests
+        this.client.defaults.headers.common['Cookie'] = this.sessionCookie;
+      }
+
+      logger.info('Successfully logged in to Tududi');
+    } catch (error) {
+      logger.error({ error }, 'Login failed');
+      throw new Error('Failed to authenticate with Tududi');
+    }
   }
 
   // Task operations

@@ -9,7 +9,12 @@ import { TududuClient } from './tududi-client.js';
 
 // Initialize configuration and client
 const config = getConfig();
-const tududuClient = new TududuClient(config.tududuApiUrl, config.tududuApiKey);
+const tududuClient = new TududuClient(
+  config.tududuApiUrl,
+  config.tududuApiKey,
+  config.tududuEmail,
+  config.tududuPassword
+);
 
 // Create MCP server
 const server = new Server(
