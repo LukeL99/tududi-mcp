@@ -86,7 +86,7 @@ export class TududuClient {
 
   async createTask(input: CreateTaskInput): Promise<TududuTask> {
     // Map title to name for tududi API
-    const payload = {
+    const payload: Record<string, unknown> = {
       name: input.title,
       note: input.description,
       project_id: input.projectId,
@@ -94,6 +94,11 @@ export class TududuClient {
       due_date: input.dueDate,
       priority: input.priority === 'low' ? TaskPriority.LOW : input.priority === 'medium' ? TaskPriority.MEDIUM : TaskPriority.HIGH,
     };
+    if (input.parentTaskId) {
+      // API expects numeric ID, so look up parent task first
+      const parentTask = await this.getTask(input.parentTaskId);
+      payload.parent_task_id = parentTask.id;
+    }
     const response = await this.client.post<TududuTask>('/api/v1/task', payload);
     return response.data;
   }
@@ -114,6 +119,11 @@ export class TududuClient {
 
   async completeTask(id: string): Promise<TududuTask> {
     return this.updateTask(id, { completed: true });
+  }
+
+  async listSubtasks(parentUid: string): Promise<TududuTask[]> {
+    const response = await this.client.get<TududuTask[]>(`/api/task/${parentUid}/subtasks`);
+    return response.data;
   }
 
   async getCompletedTasksForDate(date?: string): Promise<TududuTask[]> {

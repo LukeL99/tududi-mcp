@@ -43,7 +43,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'tududi_create_task',
-        description: 'Create a new task in Tududi',
+        description: 'Create a new task in Tududi. Can be a subtask if parentTaskId is provided. Note: Only 1 level of nesting is supported (tasks can have subtasks, but subtasks cannot have their own subtasks).',
         inputSchema: {
           type: 'object',
           properties: {
@@ -62,6 +62,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             areaId: {
               type: 'string',
               description: 'Area UID to assign task to',
+            },
+            parentTaskId: {
+              type: 'string',
+              description: 'Parent task UID to create this as a subtask. Must be a root task (not already a subtask).',
             },
             dueDate: {
               type: 'string',
@@ -133,6 +137,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
           },
           required: ['id'],
+        },
+      },
+      {
+        name: 'tududi_list_subtasks',
+        description: 'List all subtasks of a parent task. Only 1 level of nesting is supported. Completing a parent auto-completes subtasks, and completing all subtasks auto-completes the parent.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            parentId: {
+              type: 'string',
+              description: 'Parent task UID',
+            },
+          },
+          required: ['parentId'],
         },
       },
       {
@@ -373,6 +391,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               text: `Task completed successfully:\n${JSON.stringify(task, null, 2)}`,
             },
           ],
+        };
+      }
+
+      case 'tududi_list_subtasks': {
+        const { parentId } = args as { parentId: string };
+        const subtasks = await tududuClient.listSubtasks(parentId);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(subtasks, null, 2) }],
         };
       }
 

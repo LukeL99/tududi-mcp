@@ -46,11 +46,13 @@ export interface TududuTask {
   priority: number; // See TaskPriority
   project_id?: number | null;
   area_id?: number | null;
+  parent_task_id?: number | null;
   due_date?: string | null;
   defer_until?: string | null;
   completed_at?: string | null;
   Tags?: { id: number; name: string }[];
   Project?: TududuProject | null;
+  subtasks?: TududuTask[];
   created_at: string;
   updated_at: string;
 }
@@ -83,6 +85,7 @@ export interface CreateTaskInput {
   description?: string;
   projectId?: string;
   areaId?: string;
+  parentTaskId?: string;
   dueDate?: string;
   priority?: 'low' | 'medium' | 'high';
   tags?: string[];
