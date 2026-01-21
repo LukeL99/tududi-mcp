@@ -9,7 +9,6 @@ import {
   CreateProjectInput,
   CreateAreaInput,
   SearchTasksParams,
-  TaskStatus,
   TaskPriority,
   InboxItem,
   CreateInboxItemInput,
@@ -107,7 +106,7 @@ export class TududuClient {
     const payload: Record<string, unknown> = {};
     if (input.title) payload.name = input.title;
     if (input.description) payload.note = input.description;
-    if (input.completed !== undefined) payload.status = input.completed ? TaskStatus.DONE : TaskStatus.NOT_STARTED;
+    if (input.status) payload.status = input.status;
     if (input.priority) payload.priority = input.priority === 'low' ? TaskPriority.LOW : input.priority === 'medium' ? TaskPriority.MEDIUM : TaskPriority.HIGH;
     const response = await this.client.patch<TududuTask>(`/api/v1/task/${uid}`, payload);
     return response.data;
@@ -118,7 +117,7 @@ export class TududuClient {
   }
 
   async completeTask(id: string): Promise<TududuTask> {
-    return this.updateTask(id, { completed: true });
+    return this.updateTask(id, { status: 'done' });
   }
 
   async listSubtasks(parentUid: string): Promise<TududuTask[]> {

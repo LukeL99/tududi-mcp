@@ -98,9 +98,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: 'string',
               description: 'New task description (supports markdown)',
             },
-            completed: {
-              type: 'boolean',
-              description: 'Task completion status',
+            status: {
+              type: 'string',
+              enum: ['not_started', 'in_progress', 'done', 'archived', 'waiting'],
+              description: 'Task status',
             },
             priority: {
               type: 'string',

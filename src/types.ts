@@ -94,7 +94,7 @@ export interface CreateTaskInput {
 export interface UpdateTaskInput {
   title?: string;
   description?: string;
-  completed?: boolean;
+  status?: 'not_started' | 'in_progress' | 'done' | 'archived' | 'waiting';
   projectId?: string;
   areaId?: string;
   dueDate?: string;
