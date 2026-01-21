@@ -43,7 +43,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'tududi_create_task',
-        description: 'Create a new task in Tududi. Can be a subtask if parentTaskId is provided. Note: Only 1 level of nesting is supported (tasks can have subtasks, but subtasks cannot have their own subtasks).',
+        description: 'Create a new task in Tududi. Can be a subtask if parentTaskId is provided. SUBTASK LIMITATIONS: Only 1 level of nesting (no grandchildren). Only the subtask NAME is supported - description, due date, priority, and other fields are NOT available for subtasks.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -53,7 +53,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             description: {
               type: 'string',
-              description: 'Task description/note',
+              description: 'Task description/note (supports markdown)',
             },
             projectId: {
               type: 'string',
@@ -65,7 +65,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             parentTaskId: {
               type: 'string',
-              description: 'Parent task UID to create this as a subtask. Must be a root task (not already a subtask).',
+              description: 'Parent task UID to create this as a subtask. Must be a root task (not already a subtask). When creating a subtask, only the title field is used.',
             },
             dueDate: {
               type: 'string',
@@ -96,7 +96,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             description: {
               type: 'string',
-              description: 'New task description',
+              description: 'New task description (supports markdown)',
             },
             completed: {
               type: 'boolean',
@@ -141,7 +141,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'tududi_list_subtasks',
-        description: 'List all subtasks of a parent task. Only 1 level of nesting is supported. Completing a parent auto-completes subtasks, and completing all subtasks auto-completes the parent.',
+        description: 'List all subtasks of a parent task. LIMITATIONS: Only 1 level of nesting (no grandchildren). Subtasks only have a name - no description, due date, or priority. Completing a parent auto-completes subtasks, and completing all subtasks auto-completes the parent.',
         inputSchema: {
           type: 'object',
           properties: {
