@@ -89,6 +89,15 @@ export interface CreateTaskInput {
   dueDate?: string;
   priority?: 'low' | 'medium' | 'high';
   tags?: string[];
+  // Recurrence fields
+  recurrenceType?: 'none' | 'daily' | 'weekly' | 'monthly' | 'monthly_weekday' | 'monthly_last_day';
+  recurrenceInterval?: number;
+  recurrenceEndDate?: string;
+  recurrenceWeekday?: number; // 0-6 (Sunday-Saturday)
+  recurrenceWeekdays?: number[]; // Array of 0-6 for multiple weekdays
+  recurrenceMonthDay?: number; // 1-31 or -1 for last day
+  recurrenceWeekOfMonth?: number; // 1-5 for monthly_weekday
+  completionBased?: boolean;
 }
 
 export interface UpdateTaskInput {

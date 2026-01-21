@@ -98,6 +98,15 @@ export class TududuClient {
       const parentTask = await this.getTask(input.parentTaskId);
       payload.parent_task_id = parentTask.id;
     }
+    // Recurrence fields
+    if (input.recurrenceType) payload.recurrence_type = input.recurrenceType;
+    if (input.recurrenceInterval !== undefined) payload.recurrence_interval = input.recurrenceInterval;
+    if (input.recurrenceEndDate) payload.recurrence_end_date = input.recurrenceEndDate;
+    if (input.recurrenceWeekday !== undefined) payload.recurrence_weekday = input.recurrenceWeekday;
+    if (input.recurrenceWeekdays) payload.recurrence_weekdays = input.recurrenceWeekdays;
+    if (input.recurrenceMonthDay !== undefined) payload.recurrence_month_day = input.recurrenceMonthDay;
+    if (input.recurrenceWeekOfMonth !== undefined) payload.recurrence_week_of_month = input.recurrenceWeekOfMonth;
+    if (input.completionBased !== undefined) payload.completion_based = input.completionBased;
     const response = await this.client.post<TududuTask>('/api/v1/task', payload);
     return response.data;
   }

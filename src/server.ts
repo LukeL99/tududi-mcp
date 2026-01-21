@@ -76,6 +76,40 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               enum: ['low', 'medium', 'high'],
               description: 'Task priority',
             },
+            recurrenceType: {
+              type: 'string',
+              enum: ['none', 'daily', 'weekly', 'monthly', 'monthly_weekday', 'monthly_last_day'],
+              description: 'Recurrence pattern. Requires dueDate to be set.',
+            },
+            recurrenceInterval: {
+              type: 'number',
+              description: 'How often to recur (e.g., 2 with daily = every 2 days). Defaults to 1.',
+            },
+            recurrenceEndDate: {
+              type: 'string',
+              description: 'Stop recurring after this date (ISO format)',
+            },
+            recurrenceWeekday: {
+              type: 'number',
+              description: 'Day of week for weekly/monthly_weekday (0=Sunday, 1=Monday, ..., 6=Saturday)',
+            },
+            recurrenceWeekdays: {
+              type: 'array',
+              items: { type: 'number' },
+              description: 'Multiple days of week for weekly recurrence (e.g., [1,3,5] for Mon/Wed/Fri)',
+            },
+            recurrenceMonthDay: {
+              type: 'number',
+              description: 'Day of month for monthly recurrence (1-31)',
+            },
+            recurrenceWeekOfMonth: {
+              type: 'number',
+              description: 'Week of month for monthly_weekday (1-5, e.g., 2 for "2nd Tuesday")',
+            },
+            completionBased: {
+              type: 'boolean',
+              description: 'If true, next occurrence calculated from completion date instead of due date',
+            },
           },
           required: ['title'],
         },
