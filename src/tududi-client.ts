@@ -9,6 +9,11 @@ import {
   CreateProjectInput,
   CreateAreaInput,
   SearchTasksParams,
+  TaskStatus,
+  TaskPriority,
+  InboxItem,
+  CreateInboxItemInput,
+  UpdateInboxItemInput,
 } from './types.js';
 
 export class TududuClient {
@@ -69,70 +74,153 @@ export class TududuClient {
   }
 
   // Task operations
-  async listTasks(): Promise<TududuTask[]> {
-    const response = await this.client.get<TududuTask[]>('/api/tasks');
-    return response.data;
+  async listTasks(params?: { type?: 'today' | 'upcoming' | 'completed' | 'archived' | 'all'; status?: 'pending' | 'completed' | 'archived'; order_by?: string }): Promise<TududuTask[]> {
+    const response = await this.client.get<{ tasks: TududuTask[] }>('/api/v1/tasks', { params });
+    return response.data.tasks;
   }
 
-  async getTask(id: string): Promise<TududuTask> {
-    const response = await this.client.get<TududuTask>(`/api/tasks/${id}`);
+  async getTask(uid: string): Promise<TududuTask> {
+    const response = await this.client.get<TududuTask>(`/api/v1/task/${uid}`);
     return response.data;
   }
 
   async createTask(input: CreateTaskInput): Promise<TududuTask> {
-    const response = await this.client.post<TududuTask>('/api/tasks', input);
+    // Map title to name for tududi API
+    const payload = {
+      name: input.title,
+      note: input.description,
+      project_id: input.projectId,
+      area_id: input.areaId,
+      due_date: input.dueDate,
+      priority: input.priority === 'low' ? TaskPriority.LOW : input.priority === 'medium' ? TaskPriority.MEDIUM : TaskPriority.HIGH,
+    };
+    const response = await this.client.post<TududuTask>('/api/v1/task', payload);
     return response.data;
   }
 
-  async updateTask(id: string, input: UpdateTaskInput): Promise<TududuTask> {
-    const response = await this.client.patch<TududuTask>(`/api/tasks/${id}`, input);
+  async updateTask(uid: string, input: UpdateTaskInput): Promise<TududuTask> {
+    const payload: Record<string, unknown> = {};
+    if (input.title) payload.name = input.title;
+    if (input.description) payload.note = input.description;
+    if (input.completed !== undefined) payload.status = input.completed ? TaskStatus.DONE : TaskStatus.NOT_STARTED;
+    if (input.priority) payload.priority = input.priority === 'low' ? TaskPriority.LOW : input.priority === 'medium' ? TaskPriority.MEDIUM : TaskPriority.HIGH;
+    const response = await this.client.patch<TududuTask>(`/api/v1/task/${uid}`, payload);
     return response.data;
   }
 
-  async deleteTask(id: string): Promise<void> {
-    await this.client.delete(`/api/tasks/${id}`);
+  async deleteTask(uid: string): Promise<void> {
+    await this.client.delete(`/api/v1/task/${uid}`);
   }
 
   async completeTask(id: string): Promise<TududuTask> {
     return this.updateTask(id, { completed: true });
   }
 
-  async searchTasks(params: SearchTasksParams): Promise<TududuTask[]> {
-    const response = await this.client.get<TududuTask[]>('/api/tasks/search', {
-      params,
+  async getCompletedTasksForDate(date?: string): Promise<TududuTask[]> {
+    // Get all completed tasks sorted by completion date
+    // Note: type=all + status=completed is needed because there's no 'type=completed' case in tududi
+    const tasks = await this.listTasks({ type: 'all', status: 'completed', order_by: 'completed_at:desc' });
+
+    if (!date) {
+      // Default to today
+      date = new Date().toISOString().split('T')[0];
+    }
+
+    // Filter to tasks completed on the specified date
+    return tasks.filter(task => {
+      if (!task.completed_at) return false;
+      const completedDate = task.completed_at.split('T')[0];
+      return completedDate === date;
     });
-    return response.data;
+  }
+
+  async searchTasks(params: SearchTasksParams): Promise<TududuTask[]> {
+    // Use API filtering for completed status, then filter locally for other params
+    const apiParams: { type?: string; status?: string; order_by?: string } = {};
+    if (params.completed === true) {
+      apiParams.type = 'all';
+      apiParams.status = 'completed';
+      apiParams.order_by = 'completed_at:desc';
+    } else if (params.completed === false) {
+      apiParams.type = 'all';
+      apiParams.status = 'active';
+    }
+
+    const tasks = await this.listTasks(apiParams as any);
+    return tasks.filter(task => {
+      if (params.query && !task.name?.toLowerCase().includes(params.query.toLowerCase())) return false;
+      if (params.projectId && task.project_id !== parseInt(params.projectId)) return false;
+      return true;
+    });
   }
 
   // Project operations
   async listProjects(): Promise<TududuProject[]> {
-    const response = await this.client.get<TududuProject[]>('/api/projects');
-    return response.data;
+    const response = await this.client.get<{ projects: TududuProject[] }>('/api/v1/projects');
+    return response.data.projects;
   }
 
-  async getProject(id: string): Promise<TududuProject> {
-    const response = await this.client.get<TududuProject>(`/api/projects/${id}`);
+  async getProject(uid: string): Promise<TududuProject> {
+    const response = await this.client.get<TududuProject>(`/api/v1/project/${uid}`);
     return response.data;
   }
 
   async createProject(input: CreateProjectInput): Promise<TududuProject> {
-    const response = await this.client.post<TududuProject>('/api/projects', input);
+    const response = await this.client.post<TududuProject>('/api/v1/project', input);
     return response.data;
   }
 
   // Area operations
   async listAreas(): Promise<TududuArea[]> {
-    const response = await this.client.get<TududuArea[]>('/api/areas');
+    const response = await this.client.get<TududuArea[]>('/api/v1/areas');
     return response.data;
   }
 
-  async getArea(id: string): Promise<TududuArea> {
-    const response = await this.client.get<TududuArea>(`/api/areas/${id}`);
+  async getArea(uid: string): Promise<TududuArea> {
+    const response = await this.client.get<TududuArea>(`/api/v1/area/${uid}`);
     return response.data;
   }
 
   async createArea(input: CreateAreaInput): Promise<TududuArea> {
-    const response = await this.client.post<TududuArea>('/api/areas', input);
+    const response = await this.client.post<TududuArea>('/api/v1/areas', input);
+    return response.data;
+  }
+
+  // Inbox operations
+  async listInboxItems(limit?: number, offset?: number): Promise<InboxItem[]> {
+    const params: { limit?: number; offset?: number } = {};
+    if (limit) params.limit = limit;
+    if (offset) params.offset = offset;
+    const response = await this.client.get<InboxItem[] | { items: InboxItem[] }>('/api/inbox', { params });
+    // Handle both array and paginated response formats
+    return Array.isArray(response.data) ? response.data : response.data.items;
+  }
+
+  async getInboxItem(uid: string): Promise<InboxItem> {
+    const response = await this.client.get<InboxItem>(`/api/inbox/${uid}`);
+    return response.data;
+  }
+
+  async createInboxItem(input: CreateInboxItemInput): Promise<InboxItem> {
+    const payload = {
+      content: input.content,
+      source: input.source || 'mcp',
+    };
+    const response = await this.client.post<InboxItem>('/api/inbox', payload);
+    return response.data;
+  }
+
+  async updateInboxItem(uid: string, input: UpdateInboxItemInput): Promise<InboxItem> {
+    const response = await this.client.patch<InboxItem>(`/api/inbox/${uid}`, input);
+    return response.data;
+  }
+
+  async deleteInboxItem(uid: string): Promise<void> {
+    await this.client.delete(`/api/inbox/${uid}`);
+  }
+
+  async processInboxItem(uid: string): Promise<InboxItem> {
+    const response = await this.client.patch<InboxItem>(`/api/inbox/${uid}/process`);
     return response.data;
   }
 }

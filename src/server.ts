@@ -35,7 +35,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'tududi_list_tasks',
-        description: 'List all tasks from Tududi',
+        description: 'List all tasks from Tududi. Each task has a "uid" field (string) that should be used for update/delete/complete operations.',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -49,19 +49,19 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             title: {
               type: 'string',
-              description: 'Task title',
+              description: 'Task title (maps to "name" in Tududi)',
             },
             description: {
               type: 'string',
-              description: 'Task description',
+              description: 'Task description/note',
             },
             projectId: {
               type: 'string',
-              description: 'Project ID to assign task to',
+              description: 'Project UID to assign task to',
             },
             areaId: {
               type: 'string',
-              description: 'Area ID to assign task to',
+              description: 'Area UID to assign task to',
             },
             dueDate: {
               type: 'string',
@@ -84,7 +84,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             id: {
               type: 'string',
-              description: 'Task ID',
+              description: 'Task UID (the string identifier like "abc123xyz")',
             },
             title: {
               type: 'string',
@@ -115,7 +115,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             id: {
               type: 'string',
-              description: 'Task ID to delete',
+              description: 'Task UID (the string identifier like "abc123xyz")',
             },
           },
           required: ['id'],
@@ -129,7 +129,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             id: {
               type: 'string',
-              description: 'Task ID to complete',
+              description: 'Task UID (the string identifier like "abc123xyz")',
             },
           },
           required: ['id'],
@@ -137,7 +137,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'tududi_list_projects',
-        description: 'List all projects from Tududi',
+        description: 'List all projects from Tududi. Each project has a "uid" field (string) for reference.',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -159,7 +159,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             areaId: {
               type: 'string',
-              description: 'Area ID to assign project to',
+              description: 'Area UID to assign project to',
             },
           },
           required: ['name'],
@@ -167,10 +167,28 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'tududi_list_areas',
-        description: 'List all areas from Tududi',
+        description: 'List all areas from Tududi. Each area has a "uid" field (string) for reference.',
         inputSchema: {
           type: 'object',
           properties: {},
+        },
+      },
+      {
+        name: 'tududi_create_area',
+        description: 'Create a new area in Tududi',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              description: 'Area name',
+            },
+            description: {
+              type: 'string',
+              description: 'Area description',
+            },
+          },
+          required: ['name'],
         },
       },
       {
@@ -181,15 +199,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {
             query: {
               type: 'string',
-              description: 'Search query',
+              description: 'Search query (searches task names)',
             },
             projectId: {
               type: 'string',
-              description: 'Filter by project ID',
+              description: 'Filter by project numeric ID',
             },
             areaId: {
               type: 'string',
-              description: 'Filter by area ID',
+              description: 'Filter by area numeric ID',
             },
             completed: {
               type: 'boolean',
@@ -201,6 +219,88 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               description: 'Filter by priority',
             },
           },
+        },
+      },
+      {
+        name: 'tududi_daily_completed',
+        description: 'Get tasks completed on a specific date (defaults to today). Useful for end-of-day wrap-ups.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            date: {
+              type: 'string',
+              description: 'Date in YYYY-MM-DD format (defaults to today)',
+            },
+          },
+        },
+      },
+      {
+        name: 'tududi_list_inbox',
+        description: 'List all items in the Tududi inbox. The inbox is a quick capture space for notes and ideas.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            limit: { type: 'number', description: 'Max items to return' },
+            offset: { type: 'number', description: 'Number of items to skip' },
+          },
+        },
+      },
+      {
+        name: 'tududi_get_inbox_item',
+        description: 'Get a single inbox item by its UID',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            uid: { type: 'string', description: 'Inbox item UID' },
+          },
+          required: ['uid'],
+        },
+      },
+      {
+        name: 'tududi_create_inbox_item',
+        description: 'Add a new item to the inbox for quick capture',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            content: { type: 'string', description: 'The content to capture' },
+            source: { type: 'string', description: 'Source of the item (defaults to "mcp")' },
+          },
+          required: ['content'],
+        },
+      },
+      {
+        name: 'tududi_update_inbox_item',
+        description: 'Update an inbox item content or status',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            uid: { type: 'string', description: 'Inbox item UID' },
+            content: { type: 'string', description: 'New content' },
+            status: { type: 'string', enum: ['added', 'processed', 'deleted'], description: 'New status' },
+          },
+          required: ['uid'],
+        },
+      },
+      {
+        name: 'tududi_delete_inbox_item',
+        description: 'Delete an inbox item (soft delete)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            uid: { type: 'string', description: 'Inbox item UID' },
+          },
+          required: ['uid'],
+        },
+      },
+      {
+        name: 'tududi_process_inbox_item',
+        description: 'Mark an inbox item as processed (typically after converting to a task)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            uid: { type: 'string', description: 'Inbox item UID' },
+          },
+          required: ['uid'],
         },
       },
     ],
@@ -312,6 +412,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+      case 'tududi_create_area': {
+        const area = await tududuClient.createArea(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Area created successfully:\n${JSON.stringify(area, null, 2)}`,
+            },
+          ],
+        };
+      }
+
       case 'tududi_search_tasks': {
         const tasks = await tududuClient.searchTasks(args as any);
         return {
@@ -321,6 +433,69 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               text: JSON.stringify(tasks, null, 2),
             },
           ],
+        };
+      }
+
+      case 'tududi_daily_completed': {
+        const { date } = args as { date?: string };
+        const tasks = await tududuClient.getCompletedTasksForDate(date);
+        const dateStr = date || new Date().toISOString().split('T')[0];
+        return {
+          content: [
+            {
+              type: 'text',
+              text: tasks.length > 0
+                ? `Tasks completed on ${dateStr}:\n${JSON.stringify(tasks, null, 2)}`
+                : `No tasks completed on ${dateStr}`,
+            },
+          ],
+        };
+      }
+
+      case 'tududi_list_inbox': {
+        const { limit, offset } = args as { limit?: number; offset?: number };
+        const items = await tududuClient.listInboxItems(limit, offset);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(items, null, 2) }],
+        };
+      }
+
+      case 'tududi_get_inbox_item': {
+        const { uid } = args as { uid: string };
+        const item = await tududuClient.getInboxItem(uid);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(item, null, 2) }],
+        };
+      }
+
+      case 'tududi_create_inbox_item': {
+        const item = await tududuClient.createInboxItem(args as any);
+        return {
+          content: [{ type: 'text', text: `Inbox item created:\n${JSON.stringify(item, null, 2)}` }],
+        };
+      }
+
+      case 'tududi_update_inbox_item': {
+        const { uid, ...updateData } = args as any;
+        const item = await tududuClient.updateInboxItem(uid, updateData);
+        return {
+          content: [{ type: 'text', text: `Inbox item updated:\n${JSON.stringify(item, null, 2)}` }],
+        };
+      }
+
+      case 'tududi_delete_inbox_item': {
+        const { uid } = args as { uid: string };
+        await tududuClient.deleteInboxItem(uid);
+        return {
+          content: [{ type: 'text', text: `Inbox item ${uid} deleted successfully` }],
+        };
+      }
+
+      case 'tududi_process_inbox_item': {
+        const { uid } = args as { uid: string };
+        const item = await tududuClient.processInboxItem(uid);
+        return {
+          content: [{ type: 'text', text: `Inbox item processed:\n${JSON.stringify(item, null, 2)}` }],
         };
       }
 
