@@ -88,6 +88,7 @@ export interface CreateTaskInput {
   parentTaskId?: string;
   dueDate?: string;
   priority?: 'low' | 'medium' | 'high';
+  status?: 'not_started' | 'in_progress' | 'done' | 'archived' | 'waiting';
   tags?: string[];
   // Recurrence fields
   recurrenceType?: 'none' | 'daily' | 'weekly' | 'monthly' | 'monthly_weekday' | 'monthly_last_day';
@@ -109,6 +110,15 @@ export interface UpdateTaskInput {
   dueDate?: string;
   priority?: 'low' | 'medium' | 'high';
   tags?: string[];
+  // Recurrence fields
+  recurrenceType?: 'none' | 'daily' | 'weekly' | 'monthly' | 'monthly_weekday' | 'monthly_last_day';
+  recurrenceInterval?: number;
+  recurrenceEndDate?: string;
+  recurrenceWeekday?: number;
+  recurrenceWeekdays?: number[];
+  recurrenceMonthDay?: number;
+  recurrenceWeekOfMonth?: number;
+  completionBased?: boolean;
 }
 
 export interface CreateProjectInput {

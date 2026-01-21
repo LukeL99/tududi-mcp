@@ -76,6 +76,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               enum: ['low', 'medium', 'high'],
               description: 'Task priority',
             },
+            status: {
+              type: 'string',
+              enum: ['not_started', 'in_progress', 'done', 'archived', 'waiting'],
+              description: 'Initial task status. Use "done" to log completed work without creating it first.',
+            },
             recurrenceType: {
               type: 'string',
               enum: ['none', 'daily', 'weekly', 'monthly', 'monthly_weekday', 'monthly_last_day'],
@@ -141,6 +146,44 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: 'string',
               enum: ['low', 'medium', 'high'],
               description: 'Task priority',
+            },
+            dueDate: {
+              type: 'string',
+              description: 'Due date in ISO format',
+            },
+            recurrenceType: {
+              type: 'string',
+              enum: ['none', 'daily', 'weekly', 'monthly', 'monthly_weekday', 'monthly_last_day'],
+              description: 'Recurrence pattern. Set to "none" to remove recurrence.',
+            },
+            recurrenceInterval: {
+              type: 'number',
+              description: 'How often to recur (e.g., 2 with daily = every 2 days)',
+            },
+            recurrenceEndDate: {
+              type: 'string',
+              description: 'Stop recurring after this date (ISO format)',
+            },
+            recurrenceWeekday: {
+              type: 'number',
+              description: 'Day of week for weekly/monthly_weekday (0=Sunday, 6=Saturday)',
+            },
+            recurrenceWeekdays: {
+              type: 'array',
+              items: { type: 'number' },
+              description: 'Multiple days of week for weekly recurrence',
+            },
+            recurrenceMonthDay: {
+              type: 'number',
+              description: 'Day of month for monthly recurrence (1-31)',
+            },
+            recurrenceWeekOfMonth: {
+              type: 'number',
+              description: 'Week of month for monthly_weekday (1-5)',
+            },
+            completionBased: {
+              type: 'boolean',
+              description: 'If true, next occurrence calculated from completion date',
             },
           },
           required: ['id'],
