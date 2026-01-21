@@ -98,7 +98,9 @@ export class TududuClient {
       const parentTask = await this.getTask(input.parentTaskId);
       payload.parent_task_id = parentTask.id;
     }
-    if (input.status) payload.status = input.status;
+    // Don't set 'done' status on create - update after to trigger completed_at timestamp
+    const setDoneAfterCreate = input.status === 'done';
+    if (input.status && !setDoneAfterCreate) payload.status = input.status;
     // Recurrence fields
     if (input.recurrenceType) payload.recurrence_type = input.recurrenceType;
     if (input.recurrenceInterval !== undefined) payload.recurrence_interval = input.recurrenceInterval;
@@ -109,7 +111,12 @@ export class TududuClient {
     if (input.recurrenceWeekOfMonth !== undefined) payload.recurrence_week_of_month = input.recurrenceWeekOfMonth;
     if (input.completionBased !== undefined) payload.completion_based = input.completionBased;
     const response = await this.client.post<TududuTask>('/api/v1/task', payload);
-    return response.data;
+    let task = response.data;
+    // If status is 'done', update via PATCH to trigger backend setting completed_at
+    if (setDoneAfterCreate) {
+      task = await this.updateTask(task.uid, { status: 'done' });
+    }
+    return task;
   }
 
   async updateTask(uid: string, input: UpdateTaskInput): Promise<TududuTask> {
